@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeroCanvas();
   initThemeToggle();
   initNavbarScroll();
+  initMobileMenu();
   initTechStackFilters();
   initCostEstimator();
   initTerminalDemo();
@@ -26,6 +27,15 @@ function initHeroCanvas() {
   let particles = [];
   let mouse = { x: null, y: null, radius: 150 };
 
+  function getThemeColors() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    return {
+      particle1: isLight ? '#0284c7' : '#00f2fe',
+      particle2: isLight ? '#6366f1' : '#7f00ff',
+      lineStroke: isLight ? 'rgba(2, 132, 199, ' : 'rgba(0, 242, 254, '
+    };
+  }
+
   function resize() {
     width = canvas.width = canvas.offsetWidth;
     height = canvas.height = canvas.offsetHeight;
@@ -34,6 +44,7 @@ function initHeroCanvas() {
 
   function createParticles() {
     particles = [];
+    const themeColors = getThemeColors();
     const count = Math.floor((width * height) / 14000);
     for (let i = 0; i < count; i++) {
       particles.push({
@@ -42,12 +53,14 @@ function initHeroCanvas() {
         vx: (Math.random() - 0.5) * 0.8,
         vy: (Math.random() - 0.5) * 0.8,
         radius: Math.random() * 2 + 1,
-        color: Math.random() > 0.5 ? '#00f2fe' : '#7f00ff'
+        color: Math.random() > 0.5 ? themeColors.particle1 : themeColors.particle2
       });
     }
   }
 
   window.addEventListener('resize', resize);
+  window.addEventListener('themechange', createParticles);
+
   canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
@@ -60,6 +73,7 @@ function initHeroCanvas() {
 
   function animate() {
     ctx.clearRect(0, 0, width, height);
+    const themeColors = getThemeColors();
 
     // Draw particles & links
     for (let i = 0; i < particles.length; i++) {
@@ -88,7 +102,7 @@ function initHeroCanvas() {
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `rgba(0, 242, 254, ${1 - dist / 110 * 0.8})`;
+          ctx.strokeStyle = `${themeColors.lineStroke}${1 - dist / 110 * 0.8})`;
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }
@@ -103,7 +117,7 @@ function initHeroCanvas() {
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(0, 242, 254, ${1 - mdist / mouse.radius})`;
+          ctx.strokeStyle = `${themeColors.lineStroke}${1 - mdist / mouse.radius})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -133,6 +147,7 @@ function initThemeToggle() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('nexus-theme', theme);
     updateThemeIcon(theme);
+    window.dispatchEvent(new Event('themechange'));
   });
 
   function updateThemeIcon(theme) {
@@ -143,7 +158,7 @@ function initThemeToggle() {
 }
 
 /* --------------------------------------------------------------------------
-   3. Navbar Scroll Effect
+   3. Navbar Scroll Effect & Mobile Drawer
    -------------------------------------------------------------------------- */
 function initNavbarScroll() {
   const navbar = document.getElementById('navbar');
@@ -153,6 +168,35 @@ function initNavbarScroll() {
     } else {
       navbar.classList.remove('scrolled');
     }
+  });
+}
+
+function initMobileMenu() {
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const navLinks = document.querySelector('.nav-links');
+  const backdrop = document.getElementById('mobile-menu-backdrop');
+  if (!menuBtn || !navLinks) return;
+
+  function toggleMenu(show) {
+    const isActive = show !== undefined ? show : !navLinks.classList.contains('active');
+    navLinks.classList.toggle('active', isActive);
+    if (backdrop) backdrop.classList.toggle('active', isActive);
+    document.body.style.overflow = isActive ? 'hidden' : '';
+    menuBtn.innerHTML = isActive 
+      ? '<i class="fa-solid fa-xmark"></i>' 
+      : '<i class="fa-solid fa-bars"></i>';
+  }
+
+  menuBtn.addEventListener('click', () => toggleMenu());
+
+  if (backdrop) {
+    backdrop.addEventListener('click', () => toggleMenu(false));
+  }
+
+  // Close menu when a link is clicked
+  const links = navLinks.querySelectorAll('a');
+  links.forEach(link => {
+    link.addEventListener('click', () => toggleMenu(false));
   });
 }
 
@@ -364,11 +408,11 @@ function initCaseStudyModal() {
           <p style="color:var(--text-secondary);">${item.description}</p>
         </div>
 
-        <div style="width:100%; height:320px; border-radius:16px; overflow:hidden; margin-bottom:24px;">
+        <div style="width:100%; height:280px; border-radius:16px; overflow:hidden; margin-bottom:24px;">
           <img src="${item.image}" alt="${item.title}" style="width:100%; height:100%; object-fit:cover;">
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px;">
+        <div class="case-modal-grid">
           <div style="background:var(--bg-primary); padding:20px; border-radius:12px; border:1px solid var(--border-color);">
             <h4 style="font-size:1.1rem; margin-bottom:12px; color:var(--accent-cyan);"><i class="fa-solid fa-code-branch"></i> Technology Stack</h4>
             <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; font-size:0.9rem; color:var(--text-secondary);">
@@ -390,15 +434,22 @@ function initCaseStudyModal() {
       `;
 
       modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
     });
   });
 
   if (closeBtn) {
-    closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    });
   }
   if (modal) {
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('open');
+      if (e.target === modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
     });
   }
 }
