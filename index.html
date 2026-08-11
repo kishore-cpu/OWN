@@ -27,16 +27,21 @@
         <li><a href="#estimator" class="nav-link">Cost Estimator</a></li>
         <li><a href="#api-demo" class="nav-link">API Terminal</a></li>
         <li><a href="#process" class="nav-link">Blueprint</a></li>
+        <li class="mobile-only-cta"><a href="#contact" class="btn btn-primary mobile-nav-cta"><i class="fa-solid fa-calendar-check"></i> Book Consultation</a></li>
       </ul>
 
       <div class="nav-actions">
         <button class="theme-toggle" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
           <i class="fa-solid fa-moon"></i>
         </button>
-        <a href="#contact" class="btn btn-primary">Book Consultation</a>
+        <button class="mobile-menu-toggle" id="mobile-menu-btn" title="Toggle Navigation Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="#contact" class="btn btn-primary nav-cta">Book Consultation</a>
       </div>
     </div>
   </header>
+  <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
 
   <!-- Hero Section -->
   <section class="hero">
@@ -552,7 +557,7 @@ response = client.rag.query(
               </div>
               <div>
                 <h5 style="font-size:1rem; margin-bottom:2px;">Email Us</h5>
-                <span style="color:var(--text-secondary); font-size:0.9rem;">nexus_codex.ai</span>
+                <span style="color:var(--text-secondary); font-size:0.9rem;">engineering@nexuscodex.ai</span>
               </div>
             </div>
 
@@ -562,7 +567,7 @@ response = client.rag.query(
               </div>
               <div>
                 <h5 style="font-size:1rem; margin-bottom:2px;">Headquarters</h5>
-                <span style="color:var(--text-secondary); font-size:0.9rem;">Dharapuram,Tiruppur</span>
+                <span style="color:var(--text-secondary); font-size:0.9rem;">San Francisco, CA & Global Remote</span>
               </div>
             </div>
           </div>
@@ -572,11 +577,11 @@ response = client.rag.query(
           <h4 style="font-size:1.4rem; margin-bottom:8px;">Project Intake Form</h4>
           
           <div class="form-group">
-            <input type="text" placeholder="Vishnu *" required>
+            <input type="text" placeholder="Your Name *" required>
           </div>
 
           <div class="form-group">
-            <input type="email" placeholder="vishnu@gmail.com *" required>
+            <input type="email" placeholder="Work Email *" required>
           </div>
 
           <div class="form-group">
